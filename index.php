@@ -44,9 +44,11 @@ try {
 	return $fail($e->getMessage(), 500);
 }
 
-$transactions = \json_decode($response->getBody()->getContents())->transactions;
+echo $response->getBody()->getContents();
+
+/*$transactions = \json_decode($response->getBody()->getContents())->transactions;
 
 foreach ($transactions as $transaction) {
 	echo \json_encode($transaction->description, JSON_UNESCAPED_UNICODE);
-}
+}*/
 return;
