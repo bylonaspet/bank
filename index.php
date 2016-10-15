@@ -65,8 +65,8 @@ foreach ($body->transactions as &$transaction) {
 
 	if ($i === 0) {
 		// Hack transaction description
-		$transaction->description = 'Výhra v Hackathonu';
-		$transaction->amount->value = 5000;
+		$transaction->description = 'Výhra v Hackathonu, Viktor';
+		$transaction->amount->value = -5000;
 	}
 
 	$i++;
