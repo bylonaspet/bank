@@ -95,7 +95,7 @@ array_unshift($body->transactions, $knTransaction);
 // Add uber transaction
 $uberTransaction = clone $transaction;
 $uberTransaction->description = 'Uber ride';
-$uberTransaction->amount->value = 250;
+$uberTransaction->amount->value = 109.35;
 $uberTransaction->variableSymbol = 12345;
 $uberTransaction->enhanced = [
 	'type' => 'uber',
