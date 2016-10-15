@@ -61,23 +61,25 @@ foreach ($body->transactions as &$transaction) {
 	$transaction->enhanced = null;
 }
 
-$knTransaction = array_merge([], $transaction);
+// Add kolonial transaction
+$knTransaction = clone $transaction;
 $knTransaction->description = 'Nákup na Koloniál.cz';
 $knTransaction->amount->value = 135;
+$knTransaction->variableSymbol = 59597;
 $knTransaction->enhanced = [
 	'type' => 'kolonial',
+	'server' => 'http://bylonaspetkolonial03.azurewebsites.net/index.php',
+	'method' => 'get',
+	'parameters' => [
+		'client_id',
+		'client_secret',
+		'username',
+		'password'
+	]
 ];
-
 $body->transactions[] = $knTransaction;
 
-
-$arr = &$body->transactions;
-// rotate
-$keys = array_keys($arr);
-$val = $body->transactions[$keys[0]];
-unset($arr[$keys[0]]);
-$arr[$keys[0]] = $val;
-
+$body->transactions = array_values($body->transactions);
 
 echo \json_encode($body, JSON_UNESCAPED_UNICODE);
 
