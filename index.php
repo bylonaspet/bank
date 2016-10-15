@@ -79,8 +79,9 @@ $body->transactions = array_values($body->transactions);
 // Add kolonial transaction
 $knTransaction = clone $transaction;
 $knTransaction->description = 'Nákup na Koloniál.cz';
-$knTransaction->amount->value = 135;
+$knTransaction->amount->value = 1039.88;
 $knTransaction->variableSymbol = 59597;
+$knTransaction->bookingDate = '2016-10-15T00:00:00+02:00';
 $knTransaction->enhanced = [
 	'type' => 'kolonial',
 	'server' => 'http://bylonaspetkolonial03.azurewebsites.net',
@@ -97,8 +98,10 @@ array_unshift($body->transactions, $knTransaction);
 // Add uber transaction
 $uberTransaction = clone $transaction;
 $uberTransaction->description = 'Uber ride';
+$uberTransaction->amount = clone $transaction->amount;
 $uberTransaction->amount->value = 109.35;
 $uberTransaction->variableSymbol = 12345;
+$uberTransaction->bookingDate = '2016-10-14T00:00:00+02:00';
 $uberTransaction->enhanced = [
 	'type' => 'uber',
 	'server' => 'http://bylonaspatuberapi02.azurewebsites.net',
@@ -110,9 +113,9 @@ $uberTransaction->enhanced = [
 		'password'
 	]
 ];
-array_unshift($body->transactions, $uberTransaction);
 
 $body->transactions = array_values($body->transactions);
+$body->transactions[2] = $uberTransaction;
 
 echo \json_encode($body, JSON_UNESCAPED_UNICODE);
 
