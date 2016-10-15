@@ -22,8 +22,10 @@ if (php_sapi_name() !== "cli") {
 		'access_token',
 	];
 
+	$args = \json_decode(file_get_contents('php://input'), true);
+
 	foreach ($requiredQueryArgs as $arg) {
-		if (!array_key_exists($arg, $_POST)) {
+		if (!array_key_exists($arg, $args)) {
 			return $fail(sprintf('Missing parameter %s', $arg), 404);
 		}
 	}
@@ -33,9 +35,9 @@ if (php_sapi_name() !== "cli") {
 $guzzle = new Client(['verify' => false]);
 
 if (php_sapi_name() !== "cli") {
-	$bankUrl = $_POST['bank_url'];
-	$apiKey = $_POST['api_key'];
-	$accessToken = $_POST['access_token'];
+	$bankUrl = $args['bank_url'];
+	$apiKey = $args['api_key'];
+	$accessToken = $args['access_token'];
 } else {
 	$bankUrl = 'https://www.csas.cz/webapi/api/v1/netbanking/my/accounts/CZ5608000000002326573123/transactions?dateStart=2016-09-15T00:00:00Z&dateEnd=2016-10-15T00:00:00Z';
 	$apiKey = '0bca73a4-0ebb-4837-a841-7dcb189e9c02';
@@ -57,9 +59,20 @@ try {
 
 $body = \json_decode($response->getBody()->getContents());
 
+$i = 0;
 foreach ($body->transactions as &$transaction) {
 	$transaction->enhanced = null;
+
+	if ($i === 0) {
+		// Hack transaction description
+		$transaction->description = 'Výhra v Hackathonu';
+		$transaction->amount->value = 5000;
+	}
+
+	$i++;
 }
+
+$body->transactions = array_values($body->transactions);
 
 // Add kolonial transaction
 $knTransaction = clone $transaction;
@@ -68,7 +81,7 @@ $knTransaction->amount->value = 135;
 $knTransaction->variableSymbol = 59597;
 $knTransaction->enhanced = [
 	'type' => 'kolonial',
-	'server' => 'http://bylonaspetkolonial03.azurewebsites.net/index.php',
+	'server' => 'http://bylonaspetkolonial03.azurewebsites.net',
 	'method' => 'get',
 	'parameters' => [
 		'client_id',
@@ -77,7 +90,25 @@ $knTransaction->enhanced = [
 		'password'
 	]
 ];
-$body->transactions[] = $knTransaction;
+array_unshift($body->transactions, $knTransaction);
+
+// Add uber transaction
+$uberTransaction = clone $transaction;
+$uberTransaction->description = 'Uber ride';
+$uberTransaction->amount->value = 250;
+$uberTransaction->variableSymbol = 12345;
+$uberTransaction->enhanced = [
+	'type' => 'uber',
+	'server' => 'http://bylonaspatuberapi02.azurewebsites.net',
+	'method' => 'get',
+	'parameters' => [
+		'client_id',
+		'client_secret',
+		'username',
+		'password'
+	]
+];
+array_unshift($body->transactions, $uberTransaction);
 
 $body->transactions = array_values($body->transactions);
 
