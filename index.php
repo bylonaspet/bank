@@ -61,7 +61,9 @@ $body = \json_decode($response->getBody()->getContents());
 
 $i = 0;
 foreach ($body->transactions as &$transaction) {
-	$transaction->enhanced = null;
+	$transaction->enhanced = [
+		'type' => null,
+	];
 
 	if ($i === 0) {
 		// Hack transaction description
